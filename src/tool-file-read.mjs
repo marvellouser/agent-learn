@@ -1,7 +1,9 @@
 import 'dotenv/config';
+import * as readline from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
 import { ChatOpenAI } from '@langchain/openai';
 import { tool } from '@langchain/core/tools';
-import { HumanMessage, SystemMessage, ToolMessage, AIMessage } from '@langchain/core/messages';
+import { HumanMessage, SystemMessage, ToolMessage } from '@langchain/core/messages';
 import fs from 'node:fs/promises';
 import { z } from 'zod';
 
@@ -34,8 +36,36 @@ const tools = [readFileTool];
 
 const modelWithTools = model.bindTools(tools);
 
-const messages = [
-  new SystemMessage(`你是一个代码助手，可以使用工具读取文件并解释代码。
+/** 命令行参数 > 管道 stdin > 交互输入 */
+async function readCaseFromUser() {
+  if (process.argv.length > 2) {
+    return process.argv.slice(2).join(' ').trim();
+  }
+  if (!input.isTTY) {
+    const chunks = [];
+    for await (const chunk of input) {
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks).toString('utf8').trim();
+  }
+  const rl = readline.createInterface({ input, output });
+  console.log(
+    '请输入要交给 AI 的任务（Case）。也可：node src/tool-file-read.mjs "你的任务" 或 echo 文案 | node src/tool-file-read.mjs\n'
+  );
+  const text = (await rl.question('Case > ')).trim();
+  rl.close();
+  return text;
+}
+
+async function main() {
+  const userCase = await readCaseFromUser();
+  if (!userCase) {
+    console.error('未输入任务，退出。');
+    process.exit(1);
+  }
+
+  const messages = [
+    new SystemMessage(`你是一个代码助手，可以使用工具读取文件并解释代码。
 
 工作流程：
 1. 用户要求读取文件时，立即调用 read_file 工具
@@ -45,48 +75,54 @@ const messages = [
 可用工具：
 - read_file: 读取文件内容（使用此工具来获取文件内容）
 `),
-  new HumanMessage('请读取 src/tool-file-read.mjs 文件并解释代码'),
-];
+    new HumanMessage(userCase),
+  ];
 
-let response = await modelWithTools.invoke(messages);
+  let response = await modelWithTools.invoke(messages);
 
-messages.push(response);
+  messages.push(response);
 
-while (response.tool_calls?.length > 0) {
-  console.log(`22222检测到 ${response.tool_calls.length} 个工具调用`);
+  while (response.tool_calls?.length > 0) {
+    console.log(`22222检测到 ${response.tool_calls.length} 个工具调用`);
 
-  const toolResult = await Promise.all(
-    response.tool_calls.map(async (toolCall) => {
-      const tool = tools.find((t) => t.name === toolCall.name);
-      if (!tool) {
-        throw new Error(`未找到工具: ${toolCall.name} `);
-      }
+    const toolResult = await Promise.all(
+      response.tool_calls.map(async (toolCall) => {
+        const tool = tools.find((t) => t.name === toolCall.name);
+        if (!tool) {
+          throw new Error(`未找到工具: ${toolCall.name} `);
+        }
 
-      console.log(`33333调用工具: ${tool.name} (${JSON.stringify(toolCall.args)})`);
+        console.log(`33333调用工具: ${tool.name} (${JSON.stringify(toolCall.args)})`);
 
-      try {
-        const toolResult = await tool.invoke(toolCall.args);
-        return toolResult;
-      } catch (error) {
-        return `工具调用失败:  ${error.message}`;
-      }
-    })
-  );
-
-  response.tool_calls.forEach((toolCall, index) => {
-    messages.push(
-      new ToolMessage({
-        content: toolResult[index],
-        tool_call_id: toolCall.id,
+        try {
+          const toolResult = await tool.invoke(toolCall.args);
+          return toolResult;
+        } catch (error) {
+          return `工具调用失败:  ${error.message}`;
+        }
       })
     );
-  });
 
-  console.log('555555555555', response.tool_calls);
+    response.tool_calls.forEach((toolCall, index) => {
+      messages.push(
+        new ToolMessage({
+          content: toolResult[index],
+          tool_call_id: toolCall.id,
+        })
+      );
+    });
 
-  response = await modelWithTools.invoke(messages);
-  messages.push(response);
+    console.log('555555555555', response.tool_calls);
+
+    response = await modelWithTools.invoke(messages);
+    messages.push(response);
+  }
+
+  console.log('\n\n最终响应:\n');
+  console.log(response.content);
 }
 
-console.log('\n\n最终响应:\n');
-console.log(response.content);
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
