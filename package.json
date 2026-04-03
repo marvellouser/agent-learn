@@ -16,11 +16,16 @@
     "prettier": "^3.5.3"
   },
   "dependencies": {
+    "@langchain/classic": "^1.0.27",
+    "@langchain/community": "^1.1.27",
     "@langchain/core": "^1.1.35",
     "@langchain/mcp-adapters": "^1.1.3",
     "@langchain/openai": "^1.3.0",
+    "@langchain/textsplitters": "^1.0.1",
     "@modelcontextprotocol/sdk": "^1.28.0",
+    "@zilliz/milvus2-sdk-node": "^2.6.13",
     "chalk": "^5.6.2",
+    "cheerio": "^1.2.0",
     "dotenv": "^16.6.1",
     "zod": "^4.3.6"
   }
