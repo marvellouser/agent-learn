@@ -19,9 +19,9 @@ const BOOK_NAME = parse(EPUB_FILE).name;
 
 const embeddings = new OpenAIEmbeddings({
   model: process.env.EMBEDDINGS_MODEL,
-  apiKey: process.env.API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
   configuration: {
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.OPENAI_BASE_URL,
   },
   dimensions: VECTOR_DIM,
 });

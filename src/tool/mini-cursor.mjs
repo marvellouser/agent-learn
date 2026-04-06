@@ -11,10 +11,10 @@ import chalk from 'chalk';
 
 const model = new ChatOpenAI({
   modelName: process.env.MODEL_NAME,
-  apiKey: process.env.API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
   temperature: 0,
   configuration: {
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.OPENAI_BASE_URL,
   },
 });
 

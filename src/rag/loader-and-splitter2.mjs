@@ -7,17 +7,17 @@ import { CheerioWebBaseLoader } from '@langchain/community/document_loaders/web/
 
 const model = new ChatOpenAI({
   modelName: process.env.MODEL_NAME,
-  apiKey: process.env.API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
   configuration: {
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.OPENAI_BASE_URL,
   },
 });
 
 const embeddings = new OpenAIEmbeddings({
   model: process.env.EMBEDDINGS_MODEL,
-  apiKey: process.env.API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
   configuration: {
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.OPENAI_BASE_URL,
   },
 });
 

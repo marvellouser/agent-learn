@@ -13,9 +13,9 @@ const mcpServerScript = path.join(__dirname, 'my-mcp-server.mjs');
 
 const model = new ChatOpenAI({
   modelName: process.env.MODEL_NAME,
-  apiKey: process.env.API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
   configuration: {
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.OPENAI_BASE_URL,
   },
 });
 

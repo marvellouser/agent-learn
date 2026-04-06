@@ -9,18 +9,18 @@ const VECTOR_DIM = 1024;
 const model = new ChatOpenAI({
   temperature: 0.7,
   model: process.env.MODEL_NAME,
-  apiKey: process.env.API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
   configuration: {
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.OPENAI_BASE_URL,
   },
 });
 
 // 初始化 Embeddings 模型
 const embeddings = new OpenAIEmbeddings({
-  apiKey: process.env.API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
   model: process.env.EMBEDDINGS_MODEL,
   configuration: {
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.OPENAI_BASE_URL,
   },
   dimensions: VECTOR_DIM,
 });
