@@ -9,7 +9,13 @@
     "format:check": "prettier --check .",
     "hello-nes:dev": "pnpm --filter hello-nes-langchain start:dev",
     "hello-nes:build": "pnpm --filter hello-nes-langchain build",
-    "hello-nes:start": "pnpm --filter hello-nes-langchain start"
+    "hello-nes:start": "pnpm --filter hello-nes-langchain start",
+    "cron-job:dev": "pnpm --filter cron-job-tool start:dev",
+    "cron-job:build": "pnpm --filter cron-job-tool build",
+    "cron-job:start": "pnpm --filter cron-job-tool start",
+    "react-todo:dev": "pnpm --filter react-todo-app dev",
+    "react-todo:build": "pnpm --filter react-todo-app build",
+    "react-todo:preview": "pnpm --filter react-todo-app preview"
   },
   "keywords": [],
   "author": "",
